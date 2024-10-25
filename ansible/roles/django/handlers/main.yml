@@ -1,0 +1,5 @@
+# handlers/main.yml
+- name: Restart Django
+  systemd:
+    name: Django
+    state: restarted

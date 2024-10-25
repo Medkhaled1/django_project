@@ -1,0 +1,14 @@
+# Now that we have the role, we need to create a playbook that applies the role to the target server.
+- hosts: server #Specifies the target hosts for running the playbook. "server" refers to the hosts defined in your inventory.ini file.
+  become: yes # Elevates privilege to root using sudo (become_user: root).
+  become_user: root
+  vars:
+    ansible_become_pass: "mk.sellami"
+    ansible_python_interpreter: /usr/bin/python3  # Specify the Python interpreter
+
+  roles:  # Applies the nginx role to the hosts. This role is defined in the directory roles/nginx/ and contains tasks, handlers, and templates related to Nginx installation and configuration.
+    - python  # Install Python and related packages
+    - common  # Install common dependencies like git
+    - postgres  # Install and configure PostgreSQL
+    - nginx  # Install and configure Nginx
+    #- django  # Set up Django environment, clone app, and run it

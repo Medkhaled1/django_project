@@ -1,0 +1,8 @@
+# handlers/: Contains handlers that are triggered by task notifications.
+# Defines actions that will be triggered when certain tasks are completed (e.g., restarting Nginx after configuration changes).
+# This handler will restart Nginx if the configuration changes.
+---
+- name: Restart Nginx
+  systemd:
+    name: nginx
+    state: restarted

@@ -1,0 +1,80 @@
+---
+- name: uninstall needed softwares
+  hosts: server
+  become: yes
+  become_user: root
+  vars:
+    ansible_become_pass: "mk.sellami"
+    ansible_python_interpreter: /usr/bin/python3
+  tasks:
+    - name: Stop and disable Nginx
+      ansible.builtin.systemd_service: # Controls systemd units (services, timers, and so on) on remote hosts
+        name: nginx
+        state: stopped
+        enabled: false
+
+    - name: Uninstall Nginx
+      ansible.builtin.apt:
+        name: nginx
+        state: absent
+        purge: true # Will force purging of configuration files if state=absent or autoremove=yes
+
+    - name: Remove Nginx configuration files
+      ansible.builtin.file:
+        path: /etc/nginx #Path to the file being managed.
+        state: absent # If absent, directories will be recursively deleted, and files or symlinks will be unlinked.
+
+    - name: Stop and disable PostgresSQL
+      ansible.builtin.systemd_service: #Controls systemd units (services, timers, and so on) on remote hosts
+        name: postgresql
+        state: stopped
+        enabled: false
+
+    - name: Uninstall PostgreSQL
+      ansible.builtin.apt: # Manages apt packages (such as for Debian/Ubuntu).
+        name: postgresql
+        purge: true
+        state: absent
+        autoremove: yes
+        update_cache: yes
+        
+
+    - name: Remove PostgreSQL configuration and data directories
+      ansible.builtin.file: #Set attributes of files, directories, or symlinks and their targets.Alternatively, remove files, symlinks or directories.
+        path: "{{ item }}"
+        state: absent
+      with_items:
+        - /etc/postgresql
+        - /var/lib/postgresql
+
+    - name: Uninstall Python packages installed with pip
+      ansible.builtin.pip: # Manage Python library dependencies. To use this module, one of the following keys is required: name or requirements
+        name:
+          - virtualenv
+          - gunicorn
+          - psycopg2-binary
+        state: absent
+
+    - name: Uninstall Python and related packages
+      apt:
+        name:
+          - python3
+          - python3-pip
+          - libpd-dev
+          - gcc
+          - python3-dev
+        purge: true
+        state: absent
+        autoremove: yes
+        update_cache: yes
+
+    - name: Ensure pip3 is removed
+      apt:
+        name: python3-pip
+        state: absent
+        purge: yes
+
+
+         
+
+    
