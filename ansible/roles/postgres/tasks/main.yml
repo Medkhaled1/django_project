@@ -24,10 +24,11 @@
     #priv: "ALL"
     state: present
 
-- name: Check Nginxpostgresql service status
+- name: Check postgresql service status
   command: systemctl is-active postgresql
   register: postgresql_status
   changed_when: false
+  failed_when: postgresql_status.stdout != "active"
 
 - name: Display postgresql service status
   debug:

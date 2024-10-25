@@ -1,0 +1,33 @@
+# tasks/main.yml
+
+- name: Install Python dependencies for Django
+  pip:
+    name:
+      - gunicorn
+      - django
+      - psycopg2
+    virtualenv: /path/to/your/venv  # Customize with your venv path
+    virtualenv_site_packages: no
+    state: present
+
+- name: Migrate Django Database
+  command: /path/to/your/venv/bin/python manage.py migrate
+  args:
+    chdir: /path/to/your/django/app  # Customize with your project path
+
+- name: Collect Static Files
+  command: /path/to/your/venv/bin/python manage.py collectstatic --noinput
+  args:
+    chdir: /path/to/your/django/app  # Customize with your project path
+
+- name: Copy Gunicorn systemd service file for Django
+  template:
+    src: django.service.j2
+    dest: /etc/systemd/system/django.service
+  notify: Restart Django
+
+- name: Enable Django service
+  systemd:
+    name: django
+    enabled: yes
+    state: started

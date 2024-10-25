@@ -1,0 +1,16 @@
+---
+- name: Copy SSL Certificate
+  copy:
+    src: your_certificate.crt
+    dest: /etc/ssl/certs/your_certificate.crt
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Copy SSL Private Key
+  copy:
+    src: your_private.key
+    dest: /etc/ssl/private/your_private.key
+    owner: root
+    group: root
+    mode: '0600'

@@ -1,0 +1,12 @@
+[Unit]
+Description=Django Application
+After=network.target
+
+[Service]
+User=your_user
+Group=www-data
+WorkingDirectory=/path/to/your/django/app
+ExecStart=/path/to/your/venv/bin/gunicorn --workers 3 --bind unix:/path/to/your/django/app.sock your_project_name.wsgi:application
+
+[Install]
+WantedBy=multi-user.target
