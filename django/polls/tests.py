@@ -3,6 +3,7 @@ from django.utils import timezone
 import datetime
 from polls.models import Question
 from django.urls import reverse
+import numpy as np
 
 # Create your tests here.
 def create_question(question_text,days):
