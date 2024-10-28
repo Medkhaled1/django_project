@@ -12,17 +12,37 @@
     enabled: yes
     state: started
 
-- name: Create PostgreSQL Database # The postgresql_db module is used to create a new database for the Django application.
+- name: Create PostgreSQL Database
   postgresql_db:
     name: "{{ django_db_name }}"
     state: present
+    login_user: "{{ postgres_admin_user }}"
+    login_password: "{{ postgres_admin_password }}"
+    login_host: "{{ postgres_db_host }}"
+    login_port: "{{ postgres_db_port }}"
 
-- name: Create PostgreSQL User # The postgresql_user module creates a new user in PostgreSQL with a specified password.
+- name: Create PostgreSQL User
   postgresql_user:
     name: "{{ django_db_user }}"
     password: "{{ django_db_password }}"
-    priv: "{{ django_db_name }}.*:ALL"
+    role_attr_flags: "LOGIN"
     state: present
+    login_user: "{{ postgres_admin_user }}"
+    login_password: "{{ postgres_admin_password }}"
+    login_host: "{{ postgres_db_host }}"
+    login_port: "{{ postgres_db_port }}"
+
+- name: Grant privileges to the user
+  postgresql_user:
+    name: "{{ django_db_user }}"
+    db: "{{ django_db_name }}"
+    role_attr_flags: "CREATEDB,CREATEROLE"
+    state: present
+    login_user: "{{ postgres_admin_user }}"
+    login_password: "{{ postgres_admin_password }}"
+    login_host: "{{ postgres_db_host }}"
+    login_port: "{{ postgres_db_port }}"
+
 
 - name: Ensure PostgreSQL user has access to the database # The postgresql_privs module grants the created user permissions to interact with the specified database.
   postgresql_privs:
