@@ -1,21 +1,15 @@
+
 server {
     listen 80;
-    server_name your_domain_or_ip;
-    return 301 https://$host$request_uri;
-}
+    server_name {{ your_server_name }};  # Use the variable for the server name
 
-server {
-    listen 443 ssl;
-    server_name your_domain_or_ip;
-
-    ssl_certificate /etc/ssl/certs/your_certificate.crt;
-    ssl_certificate_key /etc/ssl/private/your_private.key;
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location /static/ {
+        root {{ django_static_dir }};  # Pointing to the static directory
+    }
 
     location / {
-        proxy_pass http://unix:/path/to/your/django/app.sock;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
+        include proxy_params;
+        proxy_pass http://unix:/run/gunicorn.sock;  # Adjust if using a different socket
     }
 }

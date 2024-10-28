@@ -1,33 +1,47 @@
-# tasks/main.yml
+# ansible/roles/django/tasks/main.yml
 
-- name: Install Python dependencies for Django
-  pip:
-    name:
+- name: Ensure Django app directory exists # make sure required directories are available for the Django app and its virtual environment before any other operations.
+  file: # ansible module to manage files and directories
+    path: "{{ django_app_dir }}"
+    state: directory # we want a directory to exist at this path
+    owner: admin  # Replace with your server username
+    mode: '0755' # meaning the owner has full permissions, and others have read and execute permissions
+
+- name: Ensure Django virtual environment directory exists
+  file:
+    path: "{{ django_venv_dir }}"
+    state: directory
+    owner: admin  # Replace with your server username
+    mode: '0755'
+
+- name: Install Python dependencies for Django # install the necessary Python dependencies for running a Django application and for connecting it to a PostgreSQL database.
+  pip: # installs Python packages in the specified virtual environment
+    name: # Lists packages to install
       - gunicorn
       - django
       - psycopg2
-    virtualenv: /path/to/your/venv  # Customize with your venv path
-    virtualenv_site_packages: no
-    state: present
+    virtualenv: "{{ django_venv_dir }}" # the path to the virtual environment where the packages will be installed
+    virtualenv_site_packages: no # ensures the virtual environment does not use global site packages.
+    state: present # package should be installed if it’s not already present
 
-- name: Migrate Django Database
-  command: /path/to/your/venv/bin/python manage.py migrate
+- name: Migrate Django Database # apply database migrations for Django, creating tables and fields as defined in the Django models.
+  command: "{{ django_venv_dir }}/bin/python manage.py migrate" # The command module runs shell commands on the remote server
   args:
-    chdir: /path/to/your/django/app  # Customize with your project path
+    chdir: "{{ django_app_dir }}" # Specifies the directory where the command should be run
 
-- name: Collect Static Files
-  command: /path/to/your/venv/bin/python manage.py collectstatic --noinput
+- name: Collect Static Files # prepare the Django app’s static files for use in production by placing them in a centralized static directory.
+  command: "{{ django_venv_dir }}/bin/python manage.py collectstatic --noinput" # This task runs python manage.py collectstatic in the Django app directory to gather all static files (CSS, JS, images, etc.) into a single directory for deployment.
   args:
-    chdir: /path/to/your/django/app  # Customize with your project path
+    chdir: "{{ django_app_dir }}" # Ensures the command runs in django_app_dir
 
-- name: Copy Gunicorn systemd service file for Django
-  template:
-    src: django.service.j2
-    dest: /etc/systemd/system/django.service
-  notify: Restart Django
+- name: Copy Gunicorn systemd service file for Django # set up a systemd service for managing the Django application with Gunicorn, allowing it to start, stop, and restart automatically.
+  template: # The template module copies and customizes files from your Ansible control machine to the target machine, based on a Jinja2 template (django.service.j2)
+    src: django.service.j2 # Path to the local template file (django.service.j2), which defines how to run Django using Gunicorn.
+    dest: /etc/systemd/system/django.service # Path on the remote server where the configured service file will be copied.
+  notify: Restart Django # after changes , restart Django handler will be notified
 
-- name: Enable Django service
-  systemd:
-    name: django
-    enabled: yes
-    state: started
+- name: Enable Django service # enable and start the Django application as a systemd service, so it will run continuously and automatically restart if the server reboots.
+  systemd: # The systemd module manages systemd services on Linux.
+    name: django # Name of the service (django), as specified in the service file created in the previous step.
+    enabled: yes # ensures the service starts on boot.
+    state: started # starts the service immediately.

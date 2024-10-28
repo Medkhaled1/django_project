@@ -1,35 +1,32 @@
----
-- name: Install PostgreSQL
+# tasks/main.yml
+
+- name: Install PostgreSQL # This task uses the apt module to ensure PostgreSQL is installed on the system.
   apt:
     name: postgresql
     state: present
     update_cache: yes
 
-- name: Ensure PostgreSQL is running
+- name: Ensure PostgreSQL service is started and enabled # This uses the systemd module to ensure that PostgreSQL starts on boot and is currently running.
   systemd:
     name: postgresql
+    enabled: yes
     state: started
-    enabled: true
 
-- name: Create PostgreSQL database for Django
-  become_user: postgres
+- name: Create PostgreSQL Database # The postgresql_db module is used to create a new database for the Django application.
   postgresql_db:
-    name: mysite_db
-
-- name: Create PostgreSQL user for Django
-  become_user: postgres
-  postgresql_user:
-    name: mysite_user
-    password: "mysite_password"
-    #priv: "ALL"
+    name: "{{ django_db_name }}"
     state: present
 
-- name: Check postgresql service status
-  command: systemctl is-active postgresql
-  register: postgresql_status
-  changed_when: false
-  failed_when: postgresql_status.stdout != "active"
+- name: Create PostgreSQL User # The postgresql_user module creates a new user in PostgreSQL with a specified password.
+  postgresql_user:
+    name: "{{ django_db_user }}"
+    password: "{{ django_db_password }}"
+    priv: "{{ django_db_name }}.*:ALL"
+    state: present
 
-- name: Display postgresql service status
-  debug:
-    msg: "postgreSQL service is {{ postgresql_status.stdout }}"
+- name: Ensure PostgreSQL user has access to the database # The postgresql_privs module grants the created user permissions to interact with the specified database.
+  postgresql_privs:
+    database: "{{ django_db_name }}"
+    role: "{{ django_db_user }}"
+    priv: ALL
+    state: present

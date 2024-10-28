@@ -1,12 +1,12 @@
 [Unit]
-Description=Django Application
+Description=gunicorn daemon for Django
 After=network.target
 
 [Service]
-User=your_user
+User=your_user                # Replace with the system user running Django
 Group=www-data
-WorkingDirectory=/path/to/your/django/app
-ExecStart=/path/to/your/venv/bin/gunicorn --workers 3 --bind unix:/path/to/your/django/app.sock your_project_name.wsgi:application
+WorkingDirectory={{ django_app_dir }}
+ExecStart={{ django_venv_dir }}/bin/gunicorn --workers 3 --bind unix:{{ django_app_dir }}/django.sock myapp.wsgi:application
 
 [Install]
 WantedBy=multi-user.target

@@ -1,42 +1,31 @@
-# These are the tasks Ansible will execute for the role (installing and configuring Nginx).
-# This file defines the tasks to install Nginx, copy the configuration file, and ensure the service is running.Each task is executed in the order defined:
-- name: Install Nginx #This task installs Nginx using the apt package manager (ansible module), ensuring it’s present on the system.
+# roles/nginx/tasks/main.yml
+
+- name: Install Nginx
   apt:
     name: nginx
     state: present
     update_cache: yes
 
+- name: Remove default Nginx server block
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+
 - name: Copy Nginx configuration file
   template:
     src: nginx.conf.j2
-    dest: /etc/nginx/sites-available/mysite
-    owner: root
-    group: root
-    mode: 0644
-  notify: Restart Nginx  # Notify the handler to restart Nginx if this task changes
+    dest: /etc/nginx/sites-available/django.conf
+  notify:
+    - Reload Nginx
 
-# This task copies the Nginx configuration file from the template (nginx.conf.j2) to /etc/nginx/nginx.conf on the server.
-# notify: Restart Nginx: Triggers the Nginx restart handler if this task results in any changes to the configuration file.
-
-- name: Enable Nginx site
+- name: Enable Nginx configuration
   file:
-    src: /etc/nginx/sites-available/mysite
-    dest: /etc/nginx/sites-enabled/mysite
+    src: /etc/nginx/sites-available/django.conf
+    dest: /etc/nginx/sites-enabled/django.conf
     state: link
 
-- name: Ensure Nginx is running #  This task makes sure Nginx is started and running.
+- name: Ensure Nginx is running
   systemd:
     name: nginx
     state: started
-    enabled: true
-
-- name: Check Nginx service status
-  command: systemctl is-active nginx
-  register: nginx_status # register the var so it will be used later "nginx_status.stdout"
-  changed_when: false
-  failed_when: nginx_status.stdout != "active" # This way, the task will fail if the Nginx service is not active, which can help you catch issues early.
-  
-
-- name: Display Nginx service status
-  debug:
-    msg: "Nginx service is {{ nginx_status.stdout }}"
+    enabled: yes

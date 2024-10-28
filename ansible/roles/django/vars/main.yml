@@ -1,0 +1,2 @@
+django_app_dir: "/home/admin/apps/mysite" # Project root "/path/to/your/django/app" on the remote server
+django_venv_dir: "/home/admin/venvs/mysite" # Virtual environment path "/path/to/your/venv" on the remote server

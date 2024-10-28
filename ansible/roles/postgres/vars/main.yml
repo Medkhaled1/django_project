@@ -1,0 +1,5 @@
+
+# Database configuration for the Django application
+django_db_name: my_django_db  # Change to your desired database name
+django_db_user: django_user     # Change to your desired username
+django_db_password: secure_password  # Change to your desired password
