@@ -3,7 +3,7 @@
   become: yes
   become_user: root
   vars:
-    ansible_become_pass: "mk.sellami"
+    ansible_become_pass: "@QoSSuite2020"
     ansible_python_interpreter: /usr/bin/python3
 
   roles:
