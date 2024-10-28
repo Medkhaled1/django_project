@@ -1,12 +1,10 @@
-# tasks/main.yml
-
-- name: Install PostgreSQL # This task uses the apt module to ensure PostgreSQL is installed on the system.
+- name: Install PostgreSQL
   apt:
     name: postgresql
     state: present
     update_cache: yes
 
-- name: Ensure PostgreSQL service is started and enabled # This uses the systemd module to ensure that PostgreSQL starts on boot and is currently running.
+- name: Ensure PostgreSQL service is started and enabled
   systemd:
     name: postgresql
     enabled: yes
@@ -43,8 +41,7 @@
     login_host: "{{ postgres_db_host }}"
     login_port: "{{ postgres_db_port }}"
 
-
-- name: Ensure PostgreSQL user has access to the database # The postgresql_privs module grants the created user permissions to interact with the specified database.
+- name: Grant ALL privileges on the database to the user
   postgresql_privs:
     database: "{{ django_db_name }}"
     role: "{{ django_db_user }}"
