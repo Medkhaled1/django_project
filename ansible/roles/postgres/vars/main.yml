@@ -1,5 +1,8 @@
+# roles/postgres/vars/main.yml
 
 # Database configuration for the Django application
-django_db_name: my_django_db  # Change to your desired database name
-django_db_user: django_user     # Change to your desired username
-django_db_password: secure_password  # Change to your desired password
+django_db_name: 'my_django_db'  # Change to your desired database name
+django_db_user: 'django_user'     # Change to your desired username
+django_db_password: 'secure_password'  # Change to your desired password
+postgres_db_host: 'postgres'  # Matches the service name in docker-compose
+postgres_db_port: '5432'  # Default PostgreSQL port

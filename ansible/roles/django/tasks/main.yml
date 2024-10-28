@@ -1,4 +1,3 @@
-# ansible/roles/django/tasks/main.yml
 
 - name: Ensure Django app directory exists # make sure required directories are available for the Django app and its virtual environment before any other operations.
   file: # ansible module to manage files and directories
