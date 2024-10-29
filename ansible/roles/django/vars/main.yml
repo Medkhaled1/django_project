@@ -1,15 +1,16 @@
 # roles/django/vars/main.yml
 
-django_app_dir: "/home/admin/apps/mysite"  # Project root "/path/to/your/django/app" on the remote server
-django_venv_dir: "/home/admin/venvs/mysite"  # Virtual environment path "/path/to/your/venv" on the remote server
+# Path configurations
+django_app_dir: "/home/admin/apps/mysite"  # Project root on the remote server
+django_venv_dir: "/home/admin/venvs/mysite"  # Virtual environment path on the remote server
 
 # Django-specific variables
 secret_key: 'd!@0d*^6!#9j^o12(92*+u7)w@2h@d9)@h2v18l@)@$1!5k2s6m#3s$*h!l$'  # Replace with your secure key
 debug: false  # Set this to true for development environments
 
-# Database variables - can be adjusted based on your environment
-database_name: 'my_django_db'  # Ensure this matches your database name
-database_user: 'django_user'  # Ensure this matches your database user
-database_password: 'secure_password'  # Ensure this matches your database password
-database_host: 'postgres'  # Matches the service name in docker-compose
-database_port: '5432'  # Default PostgreSQL port
+# Database configuration variables
+database_name: "{{ django_db_name }}"  # Ensure this matches your database name
+database_user: "{{ django_db_user }}"  # Ensure this matches your database user
+database_password: "{{ django_db_password }}"  # Ensure this matches your database password
+database_host: "{{ postgres_db_host }}"  # Matches the host in postgres vars
+database_port: "{{ postgres_db_port }}"  # Matches the port in postgres vars
