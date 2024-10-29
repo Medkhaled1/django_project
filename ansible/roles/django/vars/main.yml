@@ -6,11 +6,13 @@ django_venv_dir: "/home/admin/venvs/mysite"  # Virtual environment path on the r
 
 # Django-specific variables
 secret_key: 'd!@0d*^6!#9j^o12(92*+u7)w@2h@d9)@h2v18l@)@$1!5k2s6m#3s$*h!l$'  # Replace with your secure key
-debug: false  # Set this to true for development environments
+debug: False  # Set this to true for development environments
 
 # Database configuration variables
 database_name: "{{ django_db_name }}"  # Ensure this matches your database name
 database_user: "{{ django_db_user }}"  # Ensure this matches your database user
 database_password: "{{ django_db_password }}"  # Ensure this matches your database password
+database_admin_user: "{{postgres_admin_user}}"  # PostgreSQL admin user
+database_admin_password: "{{postgres_admin_password}}" # Update with your new password
 database_host: "{{ postgres_db_host }}"  # Matches the host in postgres vars
 database_port: "{{ postgres_db_port }}"  # Matches the port in postgres vars
