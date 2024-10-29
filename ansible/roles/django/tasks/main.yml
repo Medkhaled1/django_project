@@ -63,11 +63,16 @@
     enabled: yes # ensures the service starts on boot.
     state: started # starts the service immediately.
 
-- name: Check Gunicorn status # Checks if Gunicorn service for Django is running correctly
-  systemd:
-    name: gunicorn
-    state: started # ensure gunicorn starts up as expected
-    enabled: yes # start on server boot
+- name: Reload systemd to pick up Gunicorn service file
+  become: true
+  ansible.builtin.command: systemctl daemon-reload
+
+- name: Check Django service status
+  become: true
+  ansible.builtin.systemd:
+    name: django
+    enabled: yes
+    state: started
 
 - name: Verify Django application deployment # Sends a test request to ensure the application is deployed and running
   uri:
