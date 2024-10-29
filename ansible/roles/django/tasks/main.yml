@@ -51,15 +51,15 @@
   args:
     chdir: "{{ django_app_dir }}/django/mysite" # Ensure you're in the correct app directory for collecting static files
 
-- name: Copy Gunicorn systemd service file for Django # set up a systemd service for managing the Django application with Gunicorn, allowing it to start, stop, and restart automatically.
+- name: Deploy Gunicorn systemd service # set up a systemd service for managing the Django application with Gunicorn, allowing it to start, stop, and restart automatically.
   template: # The template module copies and customizes files from your Ansible control machine to the target machine, based on a Jinja2 template (django.service.j2)
-    src: django.service.j2 # Path to the local template file (django.service.j2), which defines how to run Django using Gunicorn.
-    dest: /etc/systemd/system/django.service # Path on the remote server where the configured service file will be copied.
-  notify: Restart Django # after changes , restart Django handler will be notified
+    src: gunicorn.service.j2 # Path to the local template file (django.service.j2), which defines how to run Django using Gunicorn.
+    dest: /etc/systemd/system/gunicorn.service # Path on the remote server where the configured service file will be copied.
+  notify: Reload systemd # after changes , restart Django handler will be notified
 
-- name: Enable Django service # enable and start the Django application as a systemd service, so it will run continuously and automatically restart if the server reboots.
+- name: Enable Gunicorn service # enable and start the Django application as a systemd service, so it will run continuously and automatically restart if the server reboots.
   systemd: # The systemd module manages systemd services on Linux.
-    name: django # Name of the service (django), as specified in the service file created in the previous step.
+    name: gunicorn # Name of the service (django), as specified in the service file created in the previous step.
     enabled: yes # ensures the service starts on boot.
     state: started # starts the service immediately.
 
@@ -67,19 +67,21 @@
   become: true
   ansible.builtin.command: systemctl daemon-reload
 
-- name: Check Django service status
+- name: Check Gunicorn service status
   become: true
   ansible.builtin.systemd:
-    name: django
+    name: gunicorn
     enabled: yes
     state: started
 
-- name: Verify Django application deployment # Sends a test request to ensure the application is deployed and running
+- name: Verify Django application deployment
   uri:
-    url: "http://localhost" # Replace with the server address if necessary
+    url: "http://localhost"  # Replace with your server's address and port if necessary
     return_content: yes
+    status_code: 200  # Expect a 200 OK response
   register: result
 
-- name: Display Django application status # Outputs application status in the playbook logs
+- name: Display Django application response
   debug:
-    var: result.content # Output the response content from the verification request
+    var: result.content
+  when: result.status == 200  # Display content only if the response is 200 OK

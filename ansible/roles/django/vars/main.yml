@@ -3,6 +3,11 @@
 # Path configurations
 django_app_dir: "/home/admin/apps/mysite"  # Project root on the remote server
 django_venv_dir: "/home/admin/venvs/mysite"  # Virtual environment path on the remote server
+gunicorn_user: "admin"         # User to run Gunicorn
+gunicorn_group: "users"        # Group to run Gunicorn
+gunicorn_workers: 3             # Number of worker processes
+django_app_name: "mysite"      # The name of your Django application
+
 
 # Django-specific variables
 secret_key: 'd!@0d*^6!#9j^o12(92*+u7)w@2h@d9)@h2v18l@)@$1!5k2s6m#3s$*h!l$'  # Replace with your secure key
@@ -16,3 +21,5 @@ database_admin_user: "{{postgres_admin_user}}"  # PostgreSQL admin user
 database_admin_password: "{{postgres_admin_password}}" # Update with your new password
 database_host: "{{ postgres_db_host }}"  # Matches the host in postgres vars
 database_port: "{{ postgres_db_port }}"  # Matches the port in postgres vars
+
+
