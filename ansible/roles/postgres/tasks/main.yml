@@ -41,9 +41,10 @@
     login_host: "{{ postgres_db_host }}"
     login_port: "{{ postgres_db_port }}"
 
-- name: Grant ALL privileges on the database to the user
-  postgresql_privs:
-    database: "{{ django_db_name }}"
-    role: "{{ django_db_user }}"
-    priv: ALL
-    state: present
+#- name: Grant ALL privileges on the database to the user
+  #community.postgresql.postgresql_privs:
+    #database: "{{ django_db_name }}"
+    #roles: "{{ django_db_user }}"
+    #privs: ALL
+    #type: database  # Setting privilege type to "database"
+    #state: present

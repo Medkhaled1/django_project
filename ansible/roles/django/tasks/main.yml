@@ -13,6 +13,17 @@
     owner: admin  # Replace with your server username
     mode: '0755'
 
+- name: Clone entire repository
+  git:
+    repo: 'https://github.com/Medkhaled1/django_project.git'
+    dest: "{{ django_app_dir }}"
+    version: 'main'
+    force: yes
+  register: git_clone
+  ignore_errors: yes
+- debug:
+    var: git_clone
+
 - name: Install Python dependencies for Django # install the necessary Python dependencies for running a Django application and for connecting it to a PostgreSQL database.
   pip: # installs Python packages in the specified virtual environment
     name: # Lists packages to install
@@ -23,15 +34,22 @@
     virtualenv_site_packages: no # ensures the virtual environment does not use global site packages.
     state: present # package should be installed if it’s not already present
 
-- name: Migrate Django Database # apply database migrations for Django, creating tables and fields as defined in the Django models.
-  command: "{{ django_venv_dir }}/bin/python manage.py migrate" # The command module runs shell commands on the remote server
-  args:
-    chdir: "{{ django_app_dir }}" # Specifies the directory where the command should be run
+- name: Configure Django settings # Copies settings.py.j2 template to the Django application directory and applies environment-specific configurations
+  template:
+    src: settings.py.j2
+    dest: "{{ django_app_dir }}/django/mysite/settings.py" # Updated path for settings.py in the cloned repository
+    owner: admin # Replace with server username
+    mode: '0644' # Read/write permissions for the owner; read-only for others
 
-- name: Collect Static Files # prepare the Django app’s static files for use in production by placing them in a centralized static directory.
-  command: "{{ django_venv_dir }}/bin/python manage.py collectstatic --noinput" # This task runs python manage.py collectstatic in the Django app directory to gather all static files (CSS, JS, images, etc.) into a single directory for deployment.
+- name: Migrate Django Database # Apply database migrations for Django, creating tables and fields as defined in the Django models.
+  command: "{{ django_venv_dir }}/bin/python {{ django_app_dir }}/django/manage.py migrate" # Updated path for manage.py
   args:
-    chdir: "{{ django_app_dir }}" # Ensures the command runs in django_app_dir
+    chdir: "{{ django_app_dir }}/django/mysite" # Ensure you're in the correct app directory for migrations
+
+- name: Collect Static Files # Prepare the Django app’s static files for use in production.
+  command: "{{ django_venv_dir }}/bin/python {{ django_app_dir }}/django/manage.py collectstatic --noinput" # Updated path for manage.py
+  args:
+    chdir: "{{ django_app_dir }}/django/mysite" # Ensure you're in the correct app directory for collecting static files
 
 - name: Copy Gunicorn systemd service file for Django # set up a systemd service for managing the Django application with Gunicorn, allowing it to start, stop, and restart automatically.
   template: # The template module copies and customizes files from your Ansible control machine to the target machine, based on a Jinja2 template (django.service.j2)
@@ -44,3 +62,19 @@
     name: django # Name of the service (django), as specified in the service file created in the previous step.
     enabled: yes # ensures the service starts on boot.
     state: started # starts the service immediately.
+
+- name: Check Gunicorn status # Checks if Gunicorn service for Django is running correctly
+  systemd:
+    name: gunicorn
+    state: started # ensure gunicorn starts up as expected
+    enabled: yes # start on server boot
+
+- name: Verify Django application deployment # Sends a test request to ensure the application is deployed and running
+  uri:
+    url: "http://localhost" # Replace with the server address if necessary
+    return_content: yes
+  register: result
+
+- name: Display Django application status # Outputs application status in the playbook logs
+  debug:
+    var: result.content # Output the response content from the verification request
