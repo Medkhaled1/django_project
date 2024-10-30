@@ -3,5 +3,6 @@
 your_server_name: "92.243.20.138"  # Replace with your server's IP address
 
 # This should point to the static files directory created by the Django collectstatic command
-django_static_dir: "{{ django_app_dir }}/static"  # Assuming static files are collected here
-
+django_static_dir: "{{ django_app_dir }}/static/"  # Assuming static files are collected here
+django_media_dir: "{{ django_app_dir }}/media/"  # Assuming media files are collected here
+gunicorn_socket: "unix:{{ django_app_dir }}/gunicorn.sock"  # Path to Gunicorn socket

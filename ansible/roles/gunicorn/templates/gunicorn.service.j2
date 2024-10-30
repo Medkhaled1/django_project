@@ -1,0 +1,12 @@
+[Unit]
+Description=Gunicorn daemon for Django application
+After=network.target
+
+[Service]
+User={{ gunicorn_user }}
+Group={{ gunicorn_group }}
+WorkingDirectory={{ django_app_dir }}/django
+ExecStart={{ django_venv_dir }}/bin/gunicorn --workers {{ gunicorn_workers }} --bind {{ gunicorn_bind }} --timeout {{ gunicorn_timeout }} --log-level {{ gunicorn_log_level }} {{ django_app_name }}.wsgi:application
+
+[Install]
+WantedBy=multi-user.target

@@ -1,15 +1,20 @@
-
 server {
     listen 80;
-    server_name {{ your_server_name }};  # Use the variable for the server name
-
-    location = /favicon.ico { access_log off; log_not_found off; }
-    location /static/ {
-        root {{ django_static_dir }};  # Pointing to the static directory
-    }
+    server_name {{ your_server_name }};  # Replace with your domain or IP
 
     location / {
-        include proxy_params;
-        proxy_pass http://unix:/run/gunicorn.sock;  # Adjust if using a different socket
+        proxy_pass http://unix:{{ gunicorn_socket }};
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location /static/ {
+        alias {{ django_static_dir }};  # Static files directory
+    }
+
+    location /media/ {
+        alias {{ django_media_dir }};   # Media files directory
     }
 }

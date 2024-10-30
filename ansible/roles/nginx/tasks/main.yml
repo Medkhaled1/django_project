@@ -6,25 +6,13 @@
     state: present
     update_cache: yes
 
-- name: Remove default Nginx server block
-  file:
-    path: /etc/nginx/sites-enabled/default
-    state: absent
-
-- name: Copy Nginx configuration file
+- name: Configure Nginx
   template:
     src: nginx.conf.j2
-    dest: /etc/nginx/sites-available/django.conf
-  notify:
-    - Reload Nginx
+    dest: /etc/nginx/nginx.conf
+  notify: Restart Nginx
 
-- name: Enable Nginx configuration
-  file:
-    src: /etc/nginx/sites-available/django.conf
-    dest: /etc/nginx/sites-enabled/django.conf
-    state: link
-
-- name: Ensure Nginx is running
+- name: Ensure Nginx service is started and enabled
   systemd:
     name: nginx
     state: started

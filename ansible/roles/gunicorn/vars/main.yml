@@ -1,0 +1,12 @@
+# Path configurations
+#django_app_dir: "/home/admin/apps/mysite"
+#django_venv_dir: "/home/admin/venvs/mysite"
+gunicorn_user: "admin"
+gunicorn_group: "users"
+gunicorn_workers: 3
+django_app_name: "mysite"
+
+# Gunicorn-specific configurations
+gunicorn_bind: "unix:{{ django_app_dir }}/gunicorn.sock"
+gunicorn_timeout: 120
+gunicorn_log_level: "info"

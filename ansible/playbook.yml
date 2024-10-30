@@ -3,33 +3,22 @@
   become: yes
   become_user: root
   vars:
-    ansible_become_pass: "@QoSSuite2020"
     ansible_python_interpreter: /usr/bin/python3
+    ansible_become_pass: "@QoSSuite2020"
 
   roles:
     - role: postgres
       vars_files:
-        - roles/postgres/vars/main.yml  # Role-specific vars file
-    - role: django
-      vars_files:
-        - roles/django/vars/main.yml  # Role-specific vars file
+        - roles/postgres/vars/main.yml
+
     - role: nginx
       vars_files:
-        - roles/nginx/vars/main.yml  # Role-specific vars file
+        - roles/nginx/vars/main.yml
 
-  tasks:
-    - name: Ensure services are started and enabled
-      systemd:
-        name: "{{ item }}"
-        state: started
-        enabled: yes
-      loop:
-        - gunicorn
-        - nginx
+    - role: django
+      vars_files:
+        - roles/django/vars/main.yml
 
-    - name: Test connectivity to the application
-      wait_for:
-        port: 80
-        delay: 10
-        timeout: 300
-      when: ansible_distribution == "Ubuntu"
+    - role: gunicorn
+      vars_files:
+        - roles/gunicorn/vars/main.yml
