@@ -17,6 +17,6 @@
     enabled: yes
     state: started
 
-- name: Reload systemd to pick up Gunicorn service file
-  command: systemctl daemon-reload
-  become: true
+#- name: Reload systemd to pick up Gunicorn service file
+  #command: systemctl daemon-reload
+  #become: true

@@ -1,20 +1,33 @@
-server {
-    listen 80;
-    server_name {{ your_server_name }};  # Replace with your domain or IP
 
-    location / {
-        proxy_pass http://unix:{{ gunicorn_socket }};
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
+events {
+    worker_connections 1024;
+}
 
-    location /static/ {
-        alias {{ django_static_dir }};  # Static files directory
-    }
+http {
+    include       mime.types;
+    default_type application/octet-stream;
 
-    location /media/ {
-        alias {{ django_media_dir }};   # Media files directory
+    sendfile        on;
+    keepalive_timeout 65;
+
+    server {
+        listen       80;
+        server_name  {{ your_server_name }};
+
+        location / {
+            proxy_pass http://unix:{{ gunicorn_socket }};
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+
+        location /static/ {
+            alias {{ django_static_dir }};
+        }
+
+        location /media/ {
+            alias {{ django_media_dir }};
+        }
     }
 }

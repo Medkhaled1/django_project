@@ -11,9 +11,3 @@
     src: nginx.conf.j2
     dest: /etc/nginx/nginx.conf
   notify: Restart Nginx
-
-- name: Ensure Nginx service is started and enabled
-  systemd:
-    name: nginx
-    state: started
-    enabled: yes
